@@ -1,0 +1,7 @@
+---
+
+- name: Deploy Spring Boot application
+  hosts: springboot
+  become: yes
+  roles:
+    - springboot

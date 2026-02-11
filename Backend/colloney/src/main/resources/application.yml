@@ -1,0 +1,63 @@
+server:
+  port: 8080
+
+database:
+  name: "colloney_dev"
+  port: 3306
+  username: "dbuser"
+  password: "3YbLENhi"
+
+spring:
+  application:
+    name: "colloney"
+
+  datasource:
+    url: "jdbc:mariadb://coms-3090-004.class.las.iastate.edu:${database.port}/${database.name}?useSSL=false"
+    username: "${database.username}"
+    password: "${database.password}"
+    driver-class-name: "org.mariadb.jdbc.Driver"
+    # url: "jdbc:h2:mem:testdb"
+
+  jpa:
+    hibernate:
+      ddl-auto: "update"
+
+  # h2:
+  #   console:
+  #     enabled: "true"
+
+finnhub:
+  api:
+    key: "${FINNHUB_API_KEY}"
+    key2: "${FINNHUB_API_KEY2}"
+    url: "https://finnhub.io/api/v1"
+  stocks:
+    exchanges: "XNAS,XNYS,ARCX,XASE"
+    types: "Common Stock,ETP"
+  news:
+    categories: "general,forex,crypto,merger"
+
+banking:
+  savings:
+    interest-rate: 0.05
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    metrics:
+      enabled: "false"
+    health:
+      show-details: "always"
+
+logging:
+  level:
+    root: "DEBUG"
+
+  # file:
+  #   name: "app.log"
+
+ollama:
+  base-url: "http://localhost:11434"

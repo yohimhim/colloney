@@ -1,0 +1,55 @@
+<!--
+Logback configuration file
+Logs to console by default. In the 'prod' profile, also logs to loki.
+-->
+<configuration>
+
+  <contextName>colloney</contextName>
+
+  <!-- Console Logging Appender -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <pattern>
+        %d{yyyy-MM-dd HH:mm:ss} [%thread] %magenta(%-5level) %green([%-50.50class]) >>> %cyan(%msg) %n
+      </pattern>
+    </layout>
+  </appender>
+
+  <!-- Loki Logging Appender -->
+  <springProfile name="prod">
+    <springProperty name="lokiUrl" source="loki.url" defaultValue="http://localhost:3100/loki/api/v1/push"/>
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+      <labels>
+        app = ${CONTEXT_NAME}
+        host = ${HOSTNAME}
+        level = %level
+      </labels>
+      <http>
+        <url>${lokiUrl}</url>
+      </http>
+      <readMarkers>true</readMarkers>
+      <message>
+        <pattern>
+          %d{yyyy-MM-dd HH:mm:ss} [%thread] %magenta(%-5level) %green([%-50.50class]) >>> %cyan(%msg) %n
+        </pattern>
+      </message>
+    </appender>
+  </springProfile>
+
+  <!-- Read root logging level from application.yml -->
+  <springProperty name="rootLevel" source="logging.level.root" defaultValue="INFO"/>
+
+  <!-- Default root logger -->
+  <root level="${rootLevel}">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+
+  <!-- Root logger for 'prod' profile -->
+  <springProfile name="prod">
+    <root level="${rootLevel}">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="LOKI" />
+    </root>
+  </springProfile>
+
+</configuration>

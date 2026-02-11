@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: "jdbc:mariadb://localhost:${DB_PORT}/${DB_NAME}?useSSL=false"
+    username: "${DB_USER}"
+    password: "${DB_PASSWORD}"
+    driver-class-name: "org.mariadb.jdbc.Driver"
+
+  jpa:
+    hibernate:
+      ddl-auto: "update" # should eventually become 'validate'
+
+management:
+  endpoint:
+    metrics:
+      enabled: "true"
+
+logging:
+  level:
+    root: "INFO"
+
+loki:
+  url: "http://localhost:3100/loki/api/v1/push"

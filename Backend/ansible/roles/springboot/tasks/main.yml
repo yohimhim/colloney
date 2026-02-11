@@ -1,0 +1,58 @@
+---
+
+- name: Ensure application directory exists
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0755'
+
+- name: Pull latest code from Git repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ app_dir }}"
+    version: "{{ repo_branch }}"
+    key_file: "{{ deploy_key_path }}"
+    accept_hostkey: yes
+    update: yes
+  become_user: "{{ app_user }}"
+  register: git_pull_result
+
+- name: Stop play if no changes were pulled
+  ansible.builtin.debug:
+    msg: "No changes pulled from Git. Skipping build and deployment."
+  when: git_pull_result.after == git_pull_result.before
+
+- name: End play early
+  ansible.builtin.meta: end_play
+  when: git_pull_result.after == git_pull_result.before
+
+- name: Build Spring Boot application
+  ansible.builtin.command:
+    cmd: ./mvnw clean package -DskipTests -Dformatter.skip=true -Dimpsort.skip=true
+    chdir: "{{ project_dir }}"
+  become_user: "{{ app_user }}"
+
+- name: Copy latest jar to app directory
+  ansible.builtin.shell: |
+    cp $(ls -t {{ project_dir }}/target/{{ project_name }}-*.jar | head -n 1) {{ jar_output }}
+  args:
+    executable: /bin/bash
+  become_user: "{{ app_user }}"
+
+- name: Deploy systemd service file
+  ansible.builtin.template:
+    src: "{{ service_template }}"
+    dest: "/etc/systemd/system/{{ service_file }}"
+    mode: '0644'
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Enable and restart the Spring Boot service
+  ansible.builtin.systemd:
+    name: "{{ service_file }}"
+    state: restarted
+    enabled: yes

@@ -1,0 +1,21 @@
+---
+
+project_name: colloney
+
+app_user: "{{ project_name }}"
+app_group: "{{ project_name }}"
+
+app_dir: "/opt/{{ project_name }}"
+
+repo_url: "git@git.las.iastate.edu:cs309/2025fall/1_srijita_3.git"
+repo_branch: main
+deploy_key_path: "/home/{{ app_user }}/.ssh/deploy_key"
+
+project_dir: "{{ app_dir }}/Backend/{{ project_name }}"
+
+jar_output: "{{ app_dir }}/{{ project_name }}.jar"
+
+service_file: "{{ project_name }}.service"
+service_template: springboot.service.j2
+
+spring_profile: prod

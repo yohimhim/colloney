@@ -1,0 +1,17 @@
+[Unit]
+Description={{ project_name }} Spring Boot Application
+After=network.target
+
+[Service]
+User={{ app_user }}
+Group={{ app_group }}
+WorkingDirectory={{ app_dir }}
+ExecStart=/usr/bin/java -jar {{ jar_output }}
+SuccessExitStatus=143
+Restart=always
+RestartSec=10
+Environment=SPRING_PROFILES_ACTIVE={{ spring_profile }}
+EnvironmentFile=/etc/{{ project_name }}/env.conf
+
+[Install]
+WantedBy=multi-user.target
